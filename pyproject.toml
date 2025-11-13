@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "canvas-exam-generator"
+name = "canvas-quiz-generator"
 description = "Generate canvas quiz variants from a JSON file containing placeholders and answers."
 keywords = ["Canvas", "LMS"]
 dynamic = ["version"]
@@ -19,4 +19,7 @@ dependencies = [
 ]
 
 [project.scripts]
-canvas-exam-generator = "canvas_exam_generator.__main__:main"
+canvas-quiz-generator = "canvas_quiz_generator.__main__:main"
+
+[project.urls]
+Repository = "https://github.com/Trigary/canvas-quiz-generator.git"

@@ -2,6 +2,8 @@
 
 A tool that creates multiple variants from a Canvas quiz description using a JSON file containing placeholders and the correct answers.
 
+Possible thanks to the [qtiConverter](https://github.com/backyardbiomech/qtiConverter) project.
+
 ## Usage, example
 
 The tool can handle quiz descriptions in `.md` and `.html`, `.txt` formats.
@@ -57,21 +59,12 @@ but not in the config JSON.
 
 ## Installation
 
-Navigate to the directory containing this README file and execute the following command:
-
 ```bash
-python3 -m pip install -e .
+python3 -m pip install --upgrade pip
+python3 -m pip install "canvas-quiz-generator @ git+https://github.com/Trigary/canvas-quiz-generator.git"
 ```
 
 After installation, the tool can be invoked via `canvas-exam-generator` or `python3 -m canvas_exam_generator`.
-
-If you do not wish to install this tool, you can try running it the following way:
-
-```bash
-PYTHONPATH=path/to/this/folder/./src python3 -m canvas_exam_generator
-```
-
-Please note that the dependencies of this tool (`pydantic`) still need to be installed.
 
 ## Importing a quiz bank into Canvas
 

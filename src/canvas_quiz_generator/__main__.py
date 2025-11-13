@@ -6,8 +6,8 @@ import shutil
 import sys
 import traceback
 
-from canvas_exam_generator.config import GeneratorConfig
-from canvas_exam_generator.logic import handle_variant, quiz_str_list_to_bank
+from canvas_quiz_generator.config import GeneratorConfig
+from canvas_quiz_generator.logic import handle_variant, quiz_str_list_to_bank
 
 
 _logger = logging.getLogger(__name__)

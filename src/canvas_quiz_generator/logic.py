@@ -3,8 +3,8 @@ import os
 from pathlib import Path
 import subprocess
 
-from canvas_exam_generator import qtiConverterApp
-from canvas_exam_generator.config import VariantConfig
+from canvas_quiz_generator import qtiConverterApp
+from canvas_quiz_generator.config import VariantConfig
 
 
 _logger = logging.getLogger(__name__)

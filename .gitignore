@@ -8,7 +8,7 @@
 # Cache files, packaged project
 *.pyc
 __pycache__
-/src/canvas_exam_generator.egg-info
+/src/canvas_quiz_generator.egg-info
 
 # Files generated when the example is executed
 /example/out
