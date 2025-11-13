@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "canvas-exam-generator"
+description = "Generate canvas quiz variants from a JSON file containing placeholders and answers."
+keywords = ["Canvas", "LMS"]
+dynamic = ["version"]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python",
+    "Intended Audience :: Education",
+]
+dependencies = [
+    "pydantic"
+]
+
+[project.scripts]
+canvas-exam-generator = "canvas_exam_generator.__main__:main"

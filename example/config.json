@@ -1,0 +1,24 @@
+{
+    "variants": [
+        {
+            "placeholders": {
+                "[[STUDENT_KEY]]": "KEY_STUDENT_SHOULD_COPY_PASTE",
+                "[[FRUIT]]": "apple"
+            },
+            "answer_fields": {
+                "SUBTASK1": "ANSWER_1",
+                "SUBTASK2": "ANSWER_2"
+            }
+        },
+        {
+            "placeholders": {
+                "[[STUDENT_KEY]]": "akmtk324m3",
+                "[[FRUIT]]": "orange"
+            },
+            "answer_fields": {
+                "SUBTASK1": "aijd9a87yz",
+                "SUBTASK2": "kj345nln54"
+            }
+        }
+    ]
+}

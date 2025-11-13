@@ -1,0 +1,14 @@
+# IDE specific files
+/.idea
+/.vscode
+
+# Python virtual environments
+/.venv
+
+# Cache files, packaged project
+*.pyc
+__pycache__
+/src/canvas_exam_generator.egg-info
+
+# Files generated when the example is executed
+/example/out
