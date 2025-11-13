@@ -7,7 +7,10 @@ class VariantConfig(BaseModel):
     """Represents one quiz variant with placeholders and answer fields."""
 
     placeholders: dict[str, str]
+    """Maps the strings that should be replaced to the values they should be replaced with."""
+
     answer_fields: dict[str, str]
+    """Maps the question identifiers to the correct answers."""
 
     @field_validator("answer_fields")
     def validate_answer_fields(cls, v):
@@ -24,6 +27,7 @@ class GeneratorConfig(BaseModel):
     """Top-level config model holding all variants."""
 
     variants: list[VariantConfig]
+    """The different variants that should be generated."""
 
     @model_validator(mode="after")
     def _validate_consistency(self) -> "GeneratorConfig":
@@ -44,6 +48,6 @@ class GeneratorConfig(BaseModel):
 
     @staticmethod
     def load_from_json(path: Path) -> "GeneratorConfig":
-        """Load and parse config JSON file."""
+        """Load and parse config JSON file found at the specified path."""
         json_string = path.read_text()
         return GeneratorConfig.model_validate_json(json_string)

@@ -11,6 +11,7 @@ _logger = logging.getLogger(__name__)
 
 
 def quiz_str_list_to_bank(quizzes: list[str], output_dir: Path, bank_name: str) -> None:
+    """Aggregates a list of text-format quizzes into a shared quiz bank."""
     _logger.debug("Generated %d quiz variants, creating quiz bank...", len(quizzes))
     quiz_bank_txt = output_dir / f"{bank_name}.txt"
     with quiz_bank_txt.open("w", encoding="utf-8") as f:
@@ -23,7 +24,11 @@ def quiz_str_list_to_bank(quizzes: list[str], output_dir: Path, bank_name: str) 
     _logger.debug("Quiz bank ZIP created at '%s'", qti_maker.newDirPath.with_suffix(".zip"))
 
 
-def handle_variant(config: VariantConfig, input: Path, output_dir: Path) -> str:
+def generate_variant(config: VariantConfig, input: Path, output_dir: Path) -> str:
+    """
+    Generates a single quiz variant based on the provided config and input file.
+    The output directory might be used as a working directory for intermediate files.
+    """
     intermediate_file = output_dir / f"{input.name}.html"
     if input.suffix == ".md":
         _execute_format_conversion_pandoc(input, intermediate_file)
@@ -38,6 +43,10 @@ def handle_variant(config: VariantConfig, input: Path, output_dir: Path) -> str:
 
 
 def _execute_format_conversion_pandoc(input: Path, output: Path) -> None:
+    """
+    Executes the format conversion using the 'pandoc' command.
+    The input and output file formats are determined by the file extensions.
+    """
     try:
         cmd = ["pandoc", "-o", str(output), str(input)]
         _logger.debug("Executing format conversion: %s", " ".join(cmd))
@@ -57,12 +66,20 @@ def _execute_format_conversion_pandoc(input: Path, output: Path) -> None:
 
 
 def _execute_format_conversion_newline(input: Path, output: Path) -> None:
+    """
+    Handles newline conversion for text files: the text-format quizzes can't contain line breaks,
+    therefore they are replaced with HTML line break tags.
+    """
     with input.open("r", encoding="utf-8") as fin, output.open("w", encoding="utf-8") as fout:
         for line in fin:
             fout.write(line.rstrip("\r\n") + "<br>")
 
 
 def _replace_placeholders(config: VariantConfig, quiz_description: str) -> str:
+    """
+    Executes the placeholder replacement in the quiz description.
+    A warning is logged if a placeholder is not found in the description.
+    """
     for placeholder, value in config.placeholders.items():
         if placeholder not in quiz_description:
             _logger.warning("Placeholder '%s' not found in quiz description.", placeholder)
@@ -71,6 +88,10 @@ def _replace_placeholders(config: VariantConfig, quiz_description: str) -> str:
 
 
 def _to_canvas_quiz_str(config: VariantConfig, quiz_description: str) -> str:
+    """
+    Converts the specified values into a text-format quiz string.
+    Ane rror is logged if an answer field is not found in the quiz description.
+    """
     quiz_str = "MB"
     quiz_str += os.linesep
     quiz_str += "1. " + quiz_description.replace("\r", "").replace("\n", "")
