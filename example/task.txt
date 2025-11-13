@@ -1,0 +1,15 @@
+Task description:
+
+This is an example quiz description.
+
+- Markdown files are automatically converted to HTML, but this requires <code>pandoc</code> to be installed.
+- <code>.txt</code> files also get converted to HTML: their newlines are replaced with BR tags.
+- Placeholders are supported. For example, [[FRUIT]] is a fruit specified in the JSON config.
+
+Run the application via: <code>python3 example.py --student-key [[STUDENT_KEY]]</code>
+
+Answers:
+
+Paste the answers returned by the program below:
+Test 1: [SUBTASK1]
+Test 2: [SUBTASK2]

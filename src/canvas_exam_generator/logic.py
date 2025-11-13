@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 import subprocess
 
@@ -9,20 +10,25 @@ from canvas_exam_generator.config import VariantConfig
 _logger = logging.getLogger(__name__)
 
 
-def quiz_str_list_to_bank(quizzes: list[str], output_dir: Path) -> None:
+def quiz_str_list_to_bank(quizzes: list[str], output_dir: Path, bank_name: str) -> None:
     _logger.debug("Generated %d quiz variants, creating quiz bank...", len(quizzes))
-    quiz_bank_txt = output_dir / "quiz_bank.txt"
-    _to_canvas_quiz_bank_txt(quizzes, quiz_bank_txt)
+    quiz_bank_txt = output_dir / f"{bank_name}.txt"
+    with quiz_bank_txt.open("w", encoding="utf-8") as f:
+        for quiz in quizzes:
+            f.write(quiz)
 
     _logger.debug("Quiz bank created at '%s', converting to QTI ZIP...", quiz_bank_txt)
-    quiz_bank_zip = _to_canvas_quiz_bank_zip(quiz_bank_txt)
-    _logger.debug("Quiz bank ZIP created at '%s'", quiz_bank_zip)
+    qti_maker = qtiConverterApp.makeQti(str(quiz_bank_txt), ".")
+    qti_maker.run()
+    _logger.debug("Quiz bank ZIP created at '%s'", qti_maker.newDirPath.with_suffix(".zip"))
 
 
 def handle_variant(config: VariantConfig, input: Path, output_dir: Path) -> str:
+    intermediate_file = output_dir / f"{input.name}.html"
     if input.suffix == ".md":
-        intermediate_file = output_dir / f"{input.name}.html"
-        _convert_format_if_necessary(input, intermediate_file)
+        _execute_format_conversion_pandoc(input, intermediate_file)
+    elif input.suffix != ".html":
+        _execute_format_conversion_newline(input, intermediate_file)
     else:
         intermediate_file = input
 
@@ -31,7 +37,7 @@ def handle_variant(config: VariantConfig, input: Path, output_dir: Path) -> str:
     return _to_canvas_quiz_str(config, quiz_description)
 
 
-def _convert_format_if_necessary(input: Path, output: Path) -> None:
+def _execute_format_conversion_pandoc(input: Path, output: Path) -> None:
     try:
         cmd = ["pandoc", "-o", str(output), str(input)]
         _logger.debug("Executing format conversion: %s", " ".join(cmd))
@@ -50,6 +56,12 @@ def _convert_format_if_necessary(input: Path, output: Path) -> None:
         )
 
 
+def _execute_format_conversion_newline(input: Path, output: Path) -> None:
+    with input.open("r", encoding="utf-8") as fin, output.open("w", encoding="utf-8") as fout:
+        for line in fin:
+            fout.write(line.rstrip("\r\n") + "<br>")
+
+
 def _replace_placeholders(config: VariantConfig, quiz_description: str) -> str:
     for placeholder, value in config.placeholders.items():
         if placeholder not in quiz_description:
@@ -59,27 +71,17 @@ def _replace_placeholders(config: VariantConfig, quiz_description: str) -> str:
 
 
 def _to_canvas_quiz_str(config: VariantConfig, quiz_description: str) -> str:
-    quiz_str = "MB\n"
-    quiz_str += "1. " + quiz_description.replace("\r", "").replace("\n", "<br>")
-    quiz_str += "\r"
+    quiz_str = "MB"
+    quiz_str += os.linesep
+    quiz_str += "1. " + quiz_description.replace("\r", "").replace("\n", "")
+    quiz_str += os.linesep
     for answer_field, answer_value in config.answer_fields.items():
         if f"[{answer_field}]" not in quiz_description:
             _logger.error(
                 "Answer field '[%s]' not found in quiz description. The student will have no way to enter the answer.",
                 answer_field,
             )
-        quiz_str += f"{answer_field}: {answer_value}\r"
-    quiz_str += "\r"
+        quiz_str += f"{answer_field}: {answer_value}"
+        quiz_str += os.linesep
+    quiz_str += os.linesep
     return quiz_str
-
-
-def _to_canvas_quiz_bank_txt(quizzes: list[str], output: Path) -> None:
-    with output.open("w", encoding="utf-8") as f:
-        for quiz in quizzes:
-            f.write(quiz)
-
-
-def _to_canvas_quiz_bank_zip(quiz_bank_txt: Path) -> Path:
-    qti_maker = qtiConverterApp.makeQti(str(quiz_bank_txt), ".")
-    qti_maker.run()
-    return qti_maker.newDirPath.with_suffix(".zip")

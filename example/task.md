@@ -2,8 +2,9 @@
 
 This is an example quiz description.
 
-- Markdown files are automatically converted to HTML, but `pandoc` needs to be installed.
-- Placeholders are supported. For example, [[FRUIT]] is a fruit.
+- Markdown files are automatically converted to HTML, but this requires `pandoc` to be installed.
+- `.txt` files also get converted to HTML: their newlines are replaced with `<br>`.
+- Placeholders are supported. For example, [[FRUIT]] is a fruit specified in the JSON config.
 
 Run the application via: `python3 example.py --student-key [[STUDENT_KEY]]`
 

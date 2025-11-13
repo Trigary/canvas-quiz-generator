@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 
 class VariantConfig(BaseModel):
@@ -8,6 +8,16 @@ class VariantConfig(BaseModel):
 
     placeholders: dict[str, str]
     answer_fields: dict[str, str]
+
+    @field_validator("answer_fields")
+    def validate_answer_fields(cls, v):
+        """Ensures that neither the keys nor the values contain unsupported characters such as newlines."""
+        for key, value in v.items():
+            if any(c in key for c in ("\r", "\n", ":")):
+                raise ValueError(f"Key '{key!r}' in 'answer_fields' contains invalid character(s).")
+            if any(c in value for c in ("\r", "\n")):
+                raise ValueError(f"Value '{value!r}' in 'answer_fields' contains invalid character(s).")
+        return v
 
 
 class GeneratorConfig(BaseModel):

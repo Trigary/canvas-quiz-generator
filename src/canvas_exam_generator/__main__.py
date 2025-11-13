@@ -1,6 +1,7 @@
 import argparse
 import logging
 from pathlib import Path
+import re
 import shutil
 import sys
 import traceback
@@ -43,6 +44,9 @@ def main() -> None:
         action="store_true",
         help="Deletes the contents of the output directory if it is not empty.",
     )
+    parser.add_argument(
+        "--bank-name", default="quiz_bank", help="Question bank name to use in Canvas and for the generated files."
+    )
     args = parser.parse_args()
     if len(args.input) != len(args.config):
         parser.error("You must provide the same number of --input and --config arguments.")
@@ -72,6 +76,10 @@ def main() -> None:
             _logger.error("Failed to load configuration file: %s", traceback.format_exception_only(e)[0].strip())
             exit(-1)
 
+    if not re.match(r"^[a-zA-Z0-9\._-]+$", args.bank_name):
+        _logger.error("The specified bank name (%s) is not valid. Please don't use special characters.")
+        exit(-1)
+
     if args.clear_output_dir and args.output.exists() and args.output.is_dir():
         shutil.rmtree(args.output)
 
@@ -87,14 +95,16 @@ def main() -> None:
 
     try:
         _logger.debug("Generating quizzes...")
-        execute_logic(list(zip(args.input, configs)), args.output)
+        execute_logic(list(zip(args.input, configs)), args.output, args.bank_name)
     except Exception as e:
         _logger.debug("Exception caught when generating quizzes", exc_info=True)
         _logger.error("Failed to generate quizzes: %s", traceback.format_exception_only(e)[0].strip())
         exit(-1)
 
 
-def execute_logic(input_config_pairs: list[tuple[Path, tuple[GeneratorConfig, Path]]], output_dir: Path) -> None:
+def execute_logic(
+    input_config_pairs: list[tuple[Path, tuple[GeneratorConfig, Path]]], output_dir: Path, bank_name: str
+) -> None:
     quizzes = []
     for input, config in input_config_pairs:
         input_name, config_name = input.name, config[1].name
@@ -111,7 +121,7 @@ def execute_logic(input_config_pairs: list[tuple[Path, tuple[GeneratorConfig, Pa
             len(config[0].variants),
         )
 
-    quiz_str_list_to_bank(quizzes, output_dir)
+    quiz_str_list_to_bank(quizzes, output_dir, bank_name)
     _logger.info("A quiz bank containing %d quizzes has been created in the '%s' directory.", len(quizzes), output_dir)
 
 
