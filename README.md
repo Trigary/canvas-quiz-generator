@@ -1,4 +1,4 @@
-# Canvas Exam Generator
+# Canvas quiz generator
 
 A tool that creates multiple variants from a Canvas quiz description using a JSON file containing placeholders and the correct answers.
 
