@@ -24,20 +24,31 @@ def quiz_str_list_to_bank(quizzes: list[str], output_dir: Path, bank_name: str) 
     _logger.debug("Quiz bank ZIP created at '%s'", qti_maker.newDirPath.with_suffix(".zip"))
 
 
-def generate_variant(config: VariantConfig, input: Path, output_dir: Path) -> str:
+def execute_format_conversion(input: Path, work_dir: Path) -> Path:
     """
-    Generates a single quiz variant based on the provided config and input file.
-    The output directory might be used as a working directory for intermediate files.
+    If necessary, converts the specified input file to a supported format.
+    The working directory might be used for intermediate files.
+    Returns the converted file's path or the original input file's path if no conversion is necessary.
     """
-    intermediate_file = output_dir / f"{input.name}.html"
+    intermediate_file = work_dir / f"{input.name}.html"
     if input.suffix == ".md":
         _execute_format_conversion_pandoc(input, intermediate_file)
     elif input.suffix != ".html":
         _execute_format_conversion_newline(input, intermediate_file)
     else:
-        intermediate_file = input
+        return input
+    return intermediate_file
 
-    quiz_description = intermediate_file.read_text()
+
+def generate_variant(config: VariantConfig, input: Path) -> str:
+    """
+    Generates a single quiz variant based on the provided config and input file.
+    The input file must be in one of the supported formats.
+    """
+    if input.suffix != ".html":
+        raise ValueError(f"The input file's format ({input.suffix}) is not supported")
+
+    quiz_description = input.read_text()
     quiz_description = _replace_placeholders(config, quiz_description)
     return _to_canvas_quiz_str(config, quiz_description)
 

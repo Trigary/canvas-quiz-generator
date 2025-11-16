@@ -7,7 +7,7 @@ import sys
 import traceback
 
 from canvas_quiz_generator.config import GeneratorConfig
-from canvas_quiz_generator.logic import generate_variant, quiz_str_list_to_bank
+from canvas_quiz_generator.logic import execute_format_conversion, generate_variant, quiz_str_list_to_bank
 
 
 _logger = logging.getLogger(__name__)
@@ -110,9 +110,10 @@ def execute_logic(
         input_name, config_name = input.name, config[1].name
 
         _logger.debug("Processing input '%s' with configuration '%s'...", input_name, config_name)
+        intermediate_file = execute_format_conversion(input, output_dir)
         for variant_num, variant in enumerate(config[0].variants, start=1):
             _logger.debug("Processing variant #%d: %s", variant_num, variant)
-            quizzes.append(generate_variant(variant, input, output_dir))
+            quizzes.append(generate_variant(variant, intermediate_file))
 
         _logger.info(
             "Processed %s - %s pair and generated %d quizzes.",
