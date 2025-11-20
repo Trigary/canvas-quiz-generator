@@ -62,6 +62,9 @@ but not in the config JSON.
 ```bash
 python3 -m pip install --upgrade pip
 python3 -m pip install "canvas-quiz-generator @ git+https://github.com/Trigary/canvas-quiz-generator.git"
+
+# To support some formats like markdown:
+sudo apt install pandoc
 ```
 
 After installation, the tool can be invoked via `canvas-exam-generator` or `python3 -m canvas_exam_generator`.

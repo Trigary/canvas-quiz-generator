@@ -1,6 +1,7 @@
 import logging
 import os
 from pathlib import Path
+import re
 import subprocess
 
 from canvas_quiz_generator import qtiConverterApp
@@ -59,7 +60,12 @@ def _execute_format_conversion_pandoc(input: Path, output: Path) -> None:
     The input and output file formats are determined by the file extensions.
     """
     try:
-        cmd = ["pandoc", "-o", str(output), str(input)]
+        # --wrap=none: do not wrap long lines of text, because then some \n characters would have to be replaced
+        #     by spaces because: 1) \n characters are not allowed in the quiz string format and
+        #     2) HTML renders line breaks as whitespace
+        # filter verbatim: convert line breaks within <pre> blocks to <br>
+        # with resources.as_file(filters.joinpath("verbatim.lua")) as verbatim:
+        cmd = ["pandoc", "--wrap=none", "-o", str(output), str(input)]
         _logger.debug("Executing format conversion: %s", " ".join(cmd))
         proc = subprocess.run(cmd, capture_output=True)
     except FileNotFoundError as e:
@@ -74,6 +80,18 @@ def _execute_format_conversion_pandoc(input: Path, output: Path) -> None:
         raise RuntimeError(
             f"The 'pandoc' command returned with exit code {proc.returncode} and the following stderr: {proc.stderr.strip()}"
         )
+
+    # Convert line breaks within <pre> blocks to <br>. Ideally this should be done by pandoc,
+    # who has access to the text AST, but I wasn't able to get it done using pandoc filters.
+    def replace_verbatim_newline(match: re.Match) -> str:
+        open_tag, content, close_tag = match.group(1), match.group(2), match.group(3)
+        content = content.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "<br>")
+        return open_tag + content + close_tag
+
+    verbatim_pattern = re.compile(r"(<pre[^>]*><code[^>]*>)(.*?)(</code></pre>)", re.S | re.I)
+    text = output.read_text(encoding="utf-8")
+    text = verbatim_pattern.sub(replace_verbatim_newline, text)
+    output.write_text(text, encoding="utf-8")
 
 
 def _execute_format_conversion_newline(input: Path, output: Path) -> None:
@@ -101,7 +119,7 @@ def _replace_placeholders(config: VariantConfig, quiz_description: str) -> str:
 def _to_canvas_quiz_str(config: VariantConfig, quiz_description: str) -> str:
     """
     Converts the specified values into a text-format quiz string.
-    Ane rror is logged if an answer field is not found in the quiz description.
+    An error is logged if an answer field is not found in the quiz description.
     """
     quiz_str = "MB"
     quiz_str += os.linesep

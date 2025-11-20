@@ -8,6 +8,11 @@ This is an example quiz description.
 
 Run the application via: `python3 example.py --student-key [[STUDENT_KEY]]`
 
+```bash
+# This is a verbatim block
+echo It was tricky to get this to work in .md files
+```
+
 ## Answers
 
 Paste the answers returned by the program below:  
